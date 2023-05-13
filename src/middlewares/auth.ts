@@ -1,4 +1,15 @@
 import { Request, Response, NextFunction } from "express";
+
+// bugfix for express-session typescript
+declare module "express-session" {
+  export interface SessionData {
+    user: { [key: string]: any };
+    permission: string[];
+    externalDoorUnlocked: boolean| undefined;
+  }
+}
+
+
 export function isAutenticatedMiddleware(
   req: Request,
   res: Response,

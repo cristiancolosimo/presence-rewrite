@@ -8,6 +8,7 @@ import {
 import express from "express";
 import {timeSince} from "../utils/timeago";
 import { isAutenticatedMiddleware } from "../middlewares/auth";
+import { LogTypeString} from '../models/Logs';
 
 export const routerAccounts = Router();
 // bugfix for express-session typescript
@@ -82,39 +83,29 @@ routerAccounts.get("/logout", (req, res) => {
   });
 });
 
-routerAccounts.get("/admin", isAutenticatedMiddleware, (req, res) => {
+routerAccounts.get("/admin", isAutenticatedMiddleware, async (req, res) => {
   
   const externalDoorUnlocked = req.session!.externalDoorUnlocked == true;
   req.session!.externalDoorUnlocked= false;
+  const logs = await prismaConnection.logs.findMany({
+    take: 10,
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      user: true,
+    },
+  });
   res.render("./admin", {
+    logTypeString: LogTypeString,
     username: req.session!.user!.username,
     permission: req.session!.permission,
     externalDoorUnlocked: externalDoorUnlocked,
-    lastestEnters: [
-      {
-        id: 1,
-        username: "test",
-        date: new Date(new Date() as any - 60 * 20),
-      },
-      {
-        id: 2,
-        username: "ciao",
-        date: new Date(new Date() as any- 1000000),
-      },
-      {
-        id: 2,
-        username: "ciao",
-        date: new Date(new Date()as any - 500000),
-      },
-      {
-        id: 3,
-        username: "test",
-        date: new Date(new Date() as any - 300000),
-      },
-    ].map((enter) => {
+    lastestEnters: logs.map((enter) => {
       return {
-        ...enter,
-        timeSince: timeSince(enter.date),
+        event: enter.type,
+        username: enter.user?.username || "unknown",
+        timeSince: timeSince(enter.createdAt),
       };
     }),
   });

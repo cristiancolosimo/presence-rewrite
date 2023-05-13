@@ -11,6 +11,19 @@ export const LogType = {
     EXPORT_LOGS:9,
     SETUP_APPLICATION:100,
 }
+export const LogTypeString = {
+    0:"Generale",
+    1:"Login",
+    2:"Logout",
+    3:"Registrazione",
+    4:"Sblocco porta interna",
+    5:"Sblocco porta esterna",
+    6:"Modifica utente",
+    7:"Eliminazione utente",
+    8:"Aggiunta utente",
+    9:"Esportazione log",
+    100:"Setup applicazione",
+}
 
 interface Log {
     id: number;

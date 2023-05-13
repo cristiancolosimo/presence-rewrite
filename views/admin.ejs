@@ -29,7 +29,8 @@
         flex-wrap: wrap;
       }
       card {
-        width: 250px;
+        flex:1;
+        min-width: 200px;
         min-height: 180px;
         background-color: #333;
         margin: 10px;
@@ -42,18 +43,16 @@
         font-weight: bold;
         width: 100%;
         display: block;
-        margin: -20px 0 5px -20px;
+        margin: -20px 0 40px -20px;
         padding: 20px;
         border-radius: 5px 5px 0 0;
         background-color: lightblue;
         color: black;
       }
       card-content {
-        margin-top: 20px;
         display: flex;
         justify-content: space-around;
         align-items: center;
-        height: 70%;
       }
       a {
         color: lightgray;
@@ -137,6 +136,9 @@
           content: "";
          }
       }
+      .green{
+        color: green;
+      }
     </style>
   </head>
   <body>
@@ -166,12 +168,12 @@
             <div class="<%= externalDoorUnlocked?'external_door_unlocked':'' %> contatore"></div>
           </card-content>
         </card>
-        <card>
-          <card-title> Ultimi ingressi generale </card-title>
+        <card style="flex:2">
+          <card-title> Ultimi ingressi</card-title>
           <card-content>
             <ul>
               <% lastestEnters.forEach(function(enter){ %>
-              <li><%= enter.username %> - <%= enter.timeSince %></li>
+              <li><strong class="green"><%= enter.username %></strong> - <%= logTypeString[enter.event] %> - <strong> <%= enter.timeSince %></strong> </li>
               <% }); %>
             </ul>
           </card-content>
