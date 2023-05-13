@@ -1,0 +1,4 @@
+node_modules
+prisma/database.db
+utenti.txt
+.env

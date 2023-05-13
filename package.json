@@ -1,0 +1,38 @@
+{
+  "name": "presence-nodejs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^4.14.0",
+    "body-parser": "^1.20.2",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "jsonwebtoken": "^9.0.0",
+    "multer": "^1.4.5-lts.1",
+    "rpi-gpio": "^2.1.7",
+    "serialport": "^11.0.0",
+    "sqlite3": "^5.1.6",
+    "totp-generator": "^0.0.14"
+  },
+  "devDependencies": {
+    "@types/compression": "^1.7.2",
+    "@types/express": "^4.17.17",
+    "@types/express-session": "^1.17.7",
+    "@types/multer": "^1.4.7",
+    "@types/node": "^20.1.3",
+    "@types/rpi-gpio": "^2.1.1",
+    "prisma": "^4.14.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.4"
+  }
+}
