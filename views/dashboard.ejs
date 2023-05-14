@@ -77,7 +77,7 @@
 
     <main class="container">
       <h1>Control panel</h1>
-      <h3>Bentornato <%= username %> 😆</h3>
+      <h2>Bentornato <%= username %> 😆</h2>
       <flex-wrap>
         <card>
           <card-title> Porta interna </card-title>
@@ -99,7 +99,7 @@
           <card-content>
             <ul style="list-style: disclosure-closed;">
               <% lastestEnters.forEach(function(enter){ %>
-              <li><strong class="green"><%= enter.username %></strong> - <%= logTypeString[enter.event] %> - <strong> <%= enter.timeSince %></strong> </li>
+              <li><strong class="light-green"><%= enter.username %></strong> - <%= logTypeString[enter.event] %> - <strong> <%= enter.timeSince %></strong> </li>
               <% }); %>
             </ul>
           </card-content>

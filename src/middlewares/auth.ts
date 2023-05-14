@@ -1,5 +1,11 @@
 import { Context, Next } from 'koa';
 
+export async function userLangMiddleware(ctx: Context, next: Next) {
+  // get lang from accept-language header
+  ctx.state.lang = ctx.session?.lang || ctx.acceptsLanguages("it", "en") || "en";
+  await next();
+}
+
 export async function isAutenticatedMiddleware(ctx: Context, next: Next) {
   if (!ctx.session?.user) {
     ctx.redirect("/accounts/login");

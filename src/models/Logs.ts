@@ -15,7 +15,7 @@ export const LogTypeString = {
     0:"Generale",
     1:"Login",
     2:"Logout",
-    3:"Registrazione",
+    3:"Registrazione nuovo account",
     4:"Sblocco porta interna",
     5:"Sblocco porta esterna",
     6:"Modifica utente",

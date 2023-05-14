@@ -8,6 +8,7 @@ import { timeSince } from "../utils/timeago";
 import {
   isAutenticatedMiddleware,
   isSuperAdminMiddleware,
+  userLangMiddleware,
 } from "../middlewares/auth";
 import { LogType, LogTypeString } from "../models/Logs";
 import { PermissionTypeString } from "../models/Permission";
@@ -19,7 +20,7 @@ const TIMEOUT_EXTERNAL_DOOR_MILLISECONDS = TIMEOUT_EXTERNAL_DOOR_SECONDS * 1000;
 export const routerAccounts = new Router({
   prefix: "/accounts",
 });
-
+routerAccounts.use(userLangMiddleware);
 routerAccounts.get("/login", async (ctx) => {
   await ctx.render("./login");
 });
@@ -35,12 +36,12 @@ routerAccounts.post("/login", async (ctx) => {
   }
   const user = await prismaConnection.user.findUnique({ where: { username } });
   if (!user) {
-    ctx.body = "Utente non trovato";
+    ctx.body = "Utente o password errati";
     return;
   }
   const isPasswordCorrect = verify_password(password, user.salt, user.password);
   if (!isPasswordCorrect) {
-    ctx.body = "Password errata";
+    ctx.body = "Utente o password errati"; // For privacy reasons, we don't want to tell if the username is registered or not
     return;
   }
   if (!user.enabled) {
@@ -208,11 +209,36 @@ routerAccounts.get(
     }
     await ctx.render("./add_edit_account", {
       user: user,
-      permission: ctx.session!.permission,
+      permission: user.permission.map((permission) => permission.permissionId),
       currentUser: ctx.session!.user!.id == user.id,
     });
   }
 );
+
+routerAccounts.post(
+  "/administration/user/edit/:id",
+  isAutenticatedMiddleware,
+  isSuperAdminMiddleware,
+  async (ctx) => {
+    const { username, password, email, enabled } = ctx.request.body as any;
+    if (!username || !email || !enabled) {
+      ctx.body = "Errore nei dati inseriti";
+      return;
+    }
+    const user = await prismaConnection.user.findUnique({
+      where: {
+        id: parseInt(ctx.params.id),
+      },
+      include: {
+        permission: true,
+      },
+    });
+    if (!user) {
+      ctx.body = "Utente non trovato";
+      return;
+    }
+});
+
 
 routerAccounts.get("/admin", isAutenticatedMiddleware, async (ctx) => {
   const externalDoorUnlocked = ctx.session!.externalDoorUnlocked == true;
