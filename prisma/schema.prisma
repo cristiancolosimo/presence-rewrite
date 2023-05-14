@@ -20,8 +20,6 @@ model User {
   permission PermissionUser[]
 }
 
-
-
 model Logs {
   id        Int      @id @default(autoincrement())
   userId    Int?
@@ -29,14 +27,13 @@ model Logs {
   message   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  user      User?     @relation(fields: [userId], references: [id])
+  user      User?    @relation(fields: [userId], references: [id])
 }
-
 
 model PermissionUser {
   id           Int      @id @default(autoincrement())
   userId       Int
-  permissionId Int
+  permissionId String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   user         User     @relation(fields: [userId], references: [id])

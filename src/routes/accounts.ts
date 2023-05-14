@@ -5,10 +5,10 @@ import {
   hash_password,
   verify_password,
 } from "../utils/password";
-import express from "express";
 import { timeSince } from "../utils/timeago";
 import { isAutenticatedMiddleware, isSuperAdminMiddleware } from "../middlewares/auth";
-import { LogTypeString } from "../models/Logs";
+import { LogType, LogTypeString } from "../models/Logs";
+import { PermissionTypeString } from "../models/Permission";
 
 const TIMEOUT_EXTERNAL_DOOR_SECONDS = 60;
 const TIMEOUT_EXTERNAL_DOOR_MILLISECONDS = TIMEOUT_EXTERNAL_DOOR_SECONDS * 1000;
@@ -81,6 +81,12 @@ routerAccounts.post("/register", async (req, res) => {
     res.send("Utente già registrato");
     return;
   }
+  await prismaConnection.logs.create({
+    data: {
+      type: LogType.REGISTER,
+      userId: username,
+    },
+  });
   res.redirect("/accounts/login");
 });
 routerAccounts.get("/logout", (req, res) => {
@@ -111,9 +117,10 @@ routerAccounts.get(
         permission: true
       }
     });
-
+    console.log(users.map((user) => user.permission));
     res.render("./admin", {
       logTypeString: LogTypeString,
+      permissionTypeString: PermissionTypeString,
       platformUsers: {
         totalUsers:users,
         activeUsers: users.filter((user) => user.enabled),
@@ -135,6 +142,44 @@ routerAccounts.get("/administration/user/new", isAutenticatedMiddleware, isSuper
     permission: undefined,
   });
 });
+
+routerAccounts.post("/administration/user/new", isAutenticatedMiddleware, isSuperAdminMiddleware, async (req, res) => {
+  const { username, password, email, enabled } = req.body;
+  if (!username || !password || !email  || !enabled) {
+    res.send("Errore nei dati inseriti");
+    return;
+  }
+  const salt = generate_salt();
+  const hashed_password = hash_password(password, salt);
+  try {
+    await prismaConnection.user.create({
+      data: {
+        username,
+        password: hashed_password,
+        salt: salt,
+        email: email,
+        enabled: enabled == "true",
+        permission: {
+          create: [
+            {
+              permissionId: "unlock-internal-door",
+            }
+          ]}
+      },
+    });
+  } catch (e) {
+    res.send("Utente già registrato");
+    return;
+  }
+  await prismaConnection.logs.create({
+    data: {
+      type: LogType.REGISTER,
+      userId: username,
+    },
+  });
+  res.redirect("/accounts/administration");
+});
+
 
 routerAccounts.get("/administration/user/edit/:id", isAutenticatedMiddleware, isSuperAdminMiddleware, async (req, res) => {
   const user = await prismaConnection.user.findUnique({

@@ -33,7 +33,7 @@
                             <tr>
                                 <td><%= enter.username %></td>
                                 <td><%= enter.email %></td>
-                                <td><%= enter.permission %></td>
+                                <td><%= enter.permission.map(el => permissionTypeString[el.permissionId]).join(" - ") %></td>
                                 <td><%= enter.enabled %></td>
                                 <td><a href="/accounts/administration/user/edit/<%= enter.id %>">Modifica</a></td>
                             <% }); %>
