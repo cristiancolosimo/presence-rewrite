@@ -6,20 +6,22 @@ import {
   verify_password,
 } from "../utils/password";
 import express from "express";
-import {timeSince} from "../utils/timeago";
+import { timeSince } from "../utils/timeago";
 import { isAutenticatedMiddleware } from "../middlewares/auth";
-import { LogTypeString} from '../models/Logs';
+import { LogTypeString } from "../models/Logs";
 
+const TIMEOUT_EXTERNAL_DOOR_SECONDS = 60;
+const TIMEOUT_EXTERNAL_DOOR_MILLISECONDS = TIMEOUT_EXTERNAL_DOOR_SECONDS * 1000;
 export const routerAccounts = Router();
 // bugfix for express-session typescript
 declare module "express-session" {
   export interface SessionData {
     user: { [key: string]: any };
     permission: string[];
-    externalDoorUnlocked: boolean| undefined;
+    externalDoorUnlocked: boolean | undefined;
+    externalDoorUnlockedSince: number | undefined;
   }
 }
-
 
 routerAccounts.get("/login", (req, res) => {
   res.render("./login");
@@ -44,12 +46,16 @@ routerAccounts.post("/login", async (req, res) => {
     res.send("Password errata");
     return;
   }
-  if(!user.enabled){
+  if (!user.enabled) {
     res.send("Utente non attivo");
     return;
   }
   req.session!.user = user;
-  req.session!.permission = ["super-admin","unlock-internal-door","unlock-external-door"];
+  req.session!.permission = [
+    "super-admin",
+    "unlock-internal-door",
+    "unlock-external-door",
+  ];
   res.redirect("/accounts/admin");
 });
 routerAccounts.post("/register", async (req, res) => {
@@ -60,18 +66,18 @@ routerAccounts.post("/register", async (req, res) => {
   }
   const salt = generate_salt();
   const hashed_password = hash_password(password, salt);
-  
-  try{
+
+  try {
     await prismaConnection.user.create({
-    data: {
-      username,
-      password: hashed_password,
-      salt: salt,
-      email:username,
-      enabled: true,
-    },
-  });}
-  catch(e){
+      data: {
+        username,
+        password: hashed_password,
+        salt: salt,
+        email: username,
+        enabled: true,
+      },
+    });
+  } catch (e) {
     res.send("Utente già registrato");
     return;
   }
@@ -84,9 +90,13 @@ routerAccounts.get("/logout", (req, res) => {
 });
 
 routerAccounts.get("/admin", isAutenticatedMiddleware, async (req, res) => {
-  
   const externalDoorUnlocked = req.session!.externalDoorUnlocked == true;
-  req.session!.externalDoorUnlocked= false;
+  if (
+    externalDoorUnlocked &&
+    Date.now() - req.session!.externalDoorUnlockedSince! >
+      TIMEOUT_EXTERNAL_DOOR_MILLISECONDS
+  )
+    req.session!.externalDoorUnlocked = false;
   const logs = await prismaConnection.logs.findMany({
     take: 10,
     orderBy: {
@@ -96,11 +106,13 @@ routerAccounts.get("/admin", isAutenticatedMiddleware, async (req, res) => {
       user: true,
     },
   });
-  res.render("./admin", {
+  res.render("./dashboard", {
     logTypeString: LogTypeString,
     username: req.session!.user!.username,
     permission: req.session!.permission,
     externalDoorUnlocked: externalDoorUnlocked,
+    externalDoorUnlockedSince:
+      Date.now() - (req.session!.externalDoorUnlockedSince || Date.now()),
     lastestEnters: logs.map((enter) => {
       return {
         event: enter.type,

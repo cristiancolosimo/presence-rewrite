@@ -11,6 +11,7 @@ declare module "express-session" {
     user: { [key: string]: any };
     permission: string[];
     externalDoorUnlocked: boolean| undefined;
+    externalDoorUnlockedSince: number | undefined;
   }
 }
 
@@ -33,6 +34,7 @@ routerGates.get("/internal/unlock",isAutenticatedMiddleware,isAllowedToUnlockInt
 });
 routerGates.get("/external/unlock",isAutenticatedMiddleware,isAllowedToUnlockExternalDoor, async (req, res) => {
     req.session!.externalDoorUnlocked = true;
+    req.session!.externalDoorUnlockedSince = Date.now();
     await prismaConnection.logs.create({
         data:{
             type:LogType.UNLOCK_EXTERNAL_DOOR,
