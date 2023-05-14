@@ -37,6 +37,18 @@ export function isAllowedToUnlockExternalDoor(
 
 }
 
+export function isSuperAdminMiddleware(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  if(req.session!.permission!.includes("super-admin") == false){
+    res.send("Non autorizzato")
+    return;
+  }
+  next();
+}
+
 export function isAllowedToUnlockInternalDoor(
   req: Request,
   res: Response,

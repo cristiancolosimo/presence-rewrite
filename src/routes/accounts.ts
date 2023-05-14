@@ -7,7 +7,7 @@ import {
 } from "../utils/password";
 import express from "express";
 import { timeSince } from "../utils/timeago";
-import { isAutenticatedMiddleware } from "../middlewares/auth";
+import { isAutenticatedMiddleware, isSuperAdminMiddleware } from "../middlewares/auth";
 import { LogTypeString } from "../models/Logs";
 
 const TIMEOUT_EXTERNAL_DOOR_SECONDS = 60;
@@ -86,6 +86,73 @@ routerAccounts.post("/register", async (req, res) => {
 routerAccounts.get("/logout", (req, res) => {
   req.session!.destroy(() => {
     res.redirect("/accounts/login");
+  });
+});
+
+routerAccounts.get(
+  "/administration",
+  isAutenticatedMiddleware,
+  isSuperAdminMiddleware,
+  async (req, res) => {
+    const last30Logs = await prismaConnection.logs.findMany({
+      take: 30,
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        user: true,
+      },
+    });
+    const users = await prismaConnection.user.findMany({
+      orderBy: {
+        enabled: "desc",
+      },
+      include:{
+        permission: true
+      }
+    });
+
+    res.render("./admin", {
+      logTypeString: LogTypeString,
+      platformUsers: {
+        totalUsers:users,
+        activeUsers: users.filter((user) => user.enabled),
+        inactiveUsers: users.filter((user) => !user.enabled),
+      },
+      lastLogs: last30Logs.map((enter) => {
+        return {
+          event: enter.type,
+          username: enter.user?.username || "unknown",
+          timeSince: timeSince(enter.createdAt),
+        }})
+    });
+  }
+);
+
+routerAccounts.get("/administration/user/new", isAutenticatedMiddleware, isSuperAdminMiddleware, async (req, res) => {
+  res.render("./add_edit_account", {
+    user: undefined,
+    permission: undefined,
+  });
+});
+
+routerAccounts.get("/administration/user/edit/:id", isAutenticatedMiddleware, isSuperAdminMiddleware, async (req, res) => {
+  const user = await prismaConnection.user.findUnique({
+    where: {
+      id: parseInt(req.params.id),
+    },
+    include: {
+      permission: true,
+    },
+  });
+  if (!user) {
+    res.send("Utente non trovato");
+    return;
+  }
+  res.render("./add_edit_account", {
+    user: user,
+    permission: req.session!.permission,
+    currentUser: req.session!.user!.id == user.id,
   });
 });
 

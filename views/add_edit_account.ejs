@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <%- include('components/head_dashboard'); %>
+    <%- include('components/style_dashboard'); %>
+
+</head>
+<body>
+    <%- include('components/header'); %>
+
+    <div class="container">
+        <form action="" method="post">
+            <flex-column style="gap: 10px;">
+                <card>
+                    <% if(user) {%>
+                    <card-title>Modifica utente <%= user.username %></card-title>
+                    <% } else { %>
+                    <card-title>Aggiungi utente</card-title>
+                    <% } %>
+                    <card-content>
+                        <flex-column style="gap: 10px;">
+                            <div>Username: <input type="text" name="username" placeholder="Username" value="<%= user?.username || '' %>" <%= user !== undefined ? 'disabled' : ''%> ></div>
+                            <div>Email:<input type="email" name="email" placeholder="Email" value="<%= user?.email || '' %>"></div>
+                            <div>Password:<input type="password" name="password" placeholder="Password"></div>
+                            <div>
+                                Stato : <select name="enabled">
+                                <option value="true" <% if(user?.enabled == true) { %> selected <% } %>>Abilitato</option>
+                                <option value="false" <% if(user?.enabled == false) { %> selected <% } %>>Disabilitato</option>
+                            </select> 
+                        </div>
+                            <div>
+                                <p>Permessi</p>
+                                <flex-column style="gap: 10px;">
+                                    <div><input type="checkbox" name="permission_admin" <% if(permission.includes("super-admin")) { %> checked <% } %>>Admin</div>
+                                    <div><input type="checkbox" name="permission_internal_door" <% if(permission.includes("unlock-internal-door")) { %> checked <% } %>> Apertura porta interna</div>
+                                    <div><input type="checkbox" name="permission_external_door" <% if(permission.includes("unlock-external-door")) { %> checked <% } %>> Apertura porta esterna</div>
+                                </flex-column>
+                            </div>
+                            <% if(user) {%>
+                            <button type="submit">Modifica</button>
+                            <% } else { %>
+                            <button type="submit">Aggiungi</button>
+                            <% } %>
+                        </flex-column>
+                    </card-content>
+                </card>
+                <% if(user) {%>
+
+                <card>
+                    <card-title>Elimina utente</card-title>
+                    <card-content>
+                        <flex-wrap style="gap: 10px;">
+                            <p>Sei sicuro di voler eliminare l'utente <strong><%= user.username %></strong>?</p>
+                            <button type="submit" name="delete" value="true">Elimina</button>
+                        </flex-wrap>
+                    </card-content>
+                </card>
+                <% } %>
+            </flex-column>
+        </form>
+    </div>
+</body>
+</html>
