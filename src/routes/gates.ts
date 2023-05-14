@@ -23,7 +23,6 @@ routerGates.get("/external", (req, res) => {
 });
 
 routerGates.get("/internal/unlock",isAutenticatedMiddleware,isAllowedToUnlockInternalDoor, async (req, res) => {
-    console.log("Internal door is unlocked")
     await prismaConnection.logs.create({
         data:{
             type:LogType.UNLOCK_INTERNAL_DOOR,
@@ -41,7 +40,5 @@ routerGates.get("/external/unlock",isAutenticatedMiddleware,isAllowedToUnlockExt
             userId:req.session!.user!.id,
         }
     });
-    
-    console.log("external door is in unlock mode");
     res.redirect("/accounts/admin");
 });
