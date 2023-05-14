@@ -1,52 +1,54 @@
-import express from 'express';
-import {routerGates} from './src/routes/gates';
-import session from 'express-session';
-import bodyParser from 'body-parser';
-import multer from 'multer';
-import { routerAccounts } from './src/routes/accounts';
-import compression from 'compression';
-const app = express()
+import { routerGates } from "./src/routes/gates";
+import { routerAccounts } from "./src/routes/accounts";
+import Koa from "koa";
+import Router from "@koa/router";
+import session from "koa-session";
+import bodyParser from 'koa-bodyparser';
+import render from "koa-ejs";
+import path from "path";
+const app = new Koa();
 
+const secret = (Math.random() * 10000000).toString(); //TODO, if you want to scale orizzontaly the server, you need to use a shared secret and migrate the database from sqlite to shared istance as mysql or postgresql
+app.keys = [secret];
+const baseRouter = new Router();
 const port = process.env.PORT;
-if(!port){
-    console.error("Port not defined");
-    process.exit(1);
+if (!port) {
+  console.error("Port not defined");
+  process.exit(1);
 }
-if(!process.env.PEPPER){
-    console.error("Pepper not defined");
-    process.exit(1);
+if (!process.env.PEPPER) {
+  console.error("Pepper not defined");
+  process.exit(1);
 }
-if(!process.env.ROUNDS){
-    console.error("Rounds not defined");
-    process.exit(1);
+if (!process.env.ROUNDS) {
+  console.error("Rounds not defined");
+  process.exit(1);
 }
-
-
-const sessionConfig = {
-    secret: (Math.random()*10000000).toString(),
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        sameSite: true,
-    }
-}
-app.use(compression())
-app.set('view engine', 'ejs');
-app.disable('x-powered-by');
-app.use(session(sessionConfig));
-
-app.use(bodyParser.json());  //enable json body parser
-app.use(bodyParser.urlencoded({ extended: true })); //enable urlencoded body parser
-app.use(multer().any()); // enable multipart/form-data parser
-
-app.get('/', (req, res) => {
-    res.render('./home');
+render(app, {
+    root: path.join(__dirname, "views"),
+    layout: false,
+    viewExt: "ejs",
+    cache: false,
+    debug: false,
 });
-app.get("/admin",(req,res)=>{
-    res.redirect("/accounts/admin");
-})
-app.use('/accounts', routerAccounts);
-app.use('/gates', routerGates);
-app.listen(port, () => {
-    console.log(`The server is listening on port: ${port}`)
+  
+
+app.use(session(app));
+app.use(bodyParser());
+
+baseRouter.get("/", async (ctx) => {
+  await ctx.render("./home");
 });
+baseRouter.get("/admin", (ctx) => {
+  ctx.redirect("/accounts/admin");
+});
+
+app
+  .use(baseRouter.routes())
+  .use(baseRouter.allowedMethods())
+  .use(routerAccounts.routes())
+  .use(routerAccounts.allowedMethods())
+  .use(routerGates.routes())
+  .use(routerGates.allowedMethods());
+app.listen(port);
+console.log(`The server is listening on port: ${port}`);

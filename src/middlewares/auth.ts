@@ -1,66 +1,37 @@
-import { Request, Response, NextFunction } from "express";
+import { Context, Next } from 'koa';
 
-// bugfix for express-session typescript
-declare module "express-session" {
-  export interface SessionData {
-    user: { [key: string]: any };
-    permission: string[];
-    externalDoorUnlocked: boolean| undefined;
-  }
-}
-
-
-export function isAutenticatedMiddleware(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
-  if (!req.session!.user) {
-    res.redirect("/accounts/login");
+export async function isAutenticatedMiddleware(ctx: Context, next: Next) {
+  if (!ctx.session?.user) {
+    ctx.redirect("/accounts/login");
     return;
   }
-  next();
+  await next();
 }
 
-export function isAllowedToUnlockExternalDoor(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
-
-  if(req.session!.permission!.includes("unlock-external-door") == false){
-    res.send("Non autorizzato")
+export async function isAllowedToUnlockExternalDoor(ctx: Context, next: Next) {
+  if (!ctx.session?.permission?.includes("unlock-external-door")) {
+    ctx.body = "Non autorizzato";
     return;
   }
- 
-  next();
-
+  await next();
 }
 
-export function isSuperAdminMiddleware(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
-  if(req.session!.permission!.includes("super-admin") == false){
-    res.send("Non autorizzato")
+export async function isSuperAdminMiddleware(ctx: Context, next: Next) {
+  if (!ctx.session?.permission?.includes("super-admin")) {
+    ctx.body = "Non autorizzato";
     return;
   }
-  next();
+  await next();
 }
 
-export function isAllowedToUnlockInternalDoor(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
-  if(req.session!.permission!.includes("unlock-internal-door") == false){
-    res.send("Non autorizzato")
+export async function isAllowedToUnlockInternalDoor(ctx: Context, next: Next) {
+  if (!ctx.session?.permission?.includes("unlock-internal-door")) {
+    ctx.body = "Non autorizzato";
     return;
   }
-  if(req.socket.remoteAddress && false){
-
+  if (ctx.socket.remoteAddress && false) {
+    // Add your logic here
   }
-  console.log(req.socket.remoteAddress)
-  next();
+  console.log(ctx.socket.remoteAddress);
+  await next();
 }
