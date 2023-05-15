@@ -34,7 +34,7 @@
       <% if(externalDoorUnlocked){ %>
       .external_door_unlocked.status_label::after {
         content: "BLOCCATO";
-        animation: blink_external_door_unlocked 60s linear;
+        animation: blink_external_door_unlocked <%=externalDoorTimeout%>s linear;
         animation-delay: -<%=  externalDoorUnlockedSince %>ms;
 
       }
@@ -56,7 +56,7 @@
         background-color: blue;
         cursor: pointer;
         pointer-events: all;
-        animation: control-btn-external-door-unlocked 60s linear;
+        animation: control-btn-external-door-unlocked <%=externalDoorTimeout%>s linear;
         animation-delay: -<%= externalDoorUnlockedSince %>ms;
       }
       @keyframes control-btn-external-door-unlocked {
@@ -80,13 +80,13 @@
       .external_door_unlocked.contatore::after {
         content: "";
         display: block;
-        animation: contatore 60s linear;
+        animation: contatore <%=externalDoorTimeout%>s linear;
         animation-delay: -<%= externalDoorUnlockedSince %>ms;
       }
       @keyframes contatore {
-        <% for(let i = 0; i < 60; i++){ %>
-        <%= (i*100/60) %>% {
-          content: "<%= 60-i %> Secondi";
+        <% for(let i = 0; i < externalDoorTimeout; i++){ %>
+        <%= (i*100/externalDoorTimeout) %>% {
+          content: "<%= externalDoorTimeout-i %> Secondi";
         }
          <% } %>
         99.9% {

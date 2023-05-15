@@ -1,4 +1,5 @@
 import { Context, Next } from 'koa';
+import { PAGE_LOGIN } from '../utils/abolute_url_redirect';
 
 export async function userLangMiddleware(ctx: Context, next: Next) {
   // get lang from accept-language header
@@ -8,7 +9,7 @@ export async function userLangMiddleware(ctx: Context, next: Next) {
 
 export async function isAutenticatedMiddleware(ctx: Context, next: Next) {
   if (!ctx.session?.user) {
-    ctx.redirect("/accounts/login");
+    ctx.redirect(PAGE_LOGIN);
     return;
   }
   await next();

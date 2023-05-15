@@ -3,10 +3,10 @@ import {
   isAllowedToUnlockInternalDoor,
   isAutenticatedMiddleware,
 } from "../middlewares/auth";
-import { prismaConnection } from "../db";
 import { LogType } from "../models/Logs";
 import Router from "@koa/router";
 import { hpccInternal } from "../services/hpccInternal";
+import { save_logs } from "../utils/logs";
 
 export const routerGates = new Router({
   prefix: "/gates",
@@ -21,12 +21,7 @@ routerGates.get(
   isAllowedToUnlockInternalDoor,
   async (ctx) => {
     await hpccInternal.send_unlock_pulse();
-    await prismaConnection.logs.create({
-      data: {
-        type: LogType.UNLOCK_INTERNAL_DOOR,
-        userId: ctx.session!.user!.id,
-      },
-    });
+    await save_logs(LogType.UNLOCK_INTERNAL_DOOR, ctx.session!.user!.id);
     ctx.redirect("/accounts/admin");
   }
 );
@@ -37,12 +32,7 @@ routerGates.get(
   async (ctx) => {
     ctx.session!.externalDoorUnlocked = true;
     ctx.session!.externalDoorUnlockedSince = Date.now();
-    await prismaConnection.logs.create({
-      data: {
-        type: LogType.UNLOCK_EXTERNAL_DOOR,
-        userId: ctx.session!.user!.id,
-      },
-    });
+    await save_logs(LogType.UNLOCK_EXTERNAL_DOOR, ctx.session!.user!.id);
     ctx.redirect("/accounts/admin");
   }
 );

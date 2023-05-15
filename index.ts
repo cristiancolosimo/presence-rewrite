@@ -25,6 +25,15 @@ if (!process.env.ROUNDS) {
   console.error("Rounds not defined");
   process.exit(1);
 }
+if (!process.env.EXTERNAL_DOOR_TIMEOUT) {
+  console.error("External Door timeout defined");
+  process.exit(1);
+}
+
+if (!process.env.HOMEPAGE_RELOAD_TIME) {
+  console.error("Homepage reload time not defined");
+  process.exit(1);
+}
 render(app, {
   root: path.join(__dirname, "views"),
   layout: false,
@@ -37,7 +46,10 @@ app.use(session(app));
 app.use(bodyParser());
 
 baseRouter.get("/", async (ctx) => {
-  await ctx.render("./home", {internalDoorUnLocked: await hpccInternal.is_magnet_on()});
+  await ctx.render("./home", {
+    internalDoorUnLocked: await hpccInternal.is_magnet_on(),
+    homepage_reload_time: process.env.HOMEPAGE_RELOAD_TIME,
+  });
 });
 baseRouter.get("/admin", (ctx) => {
   ctx.redirect("/accounts/admin");
