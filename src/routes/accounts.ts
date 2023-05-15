@@ -333,12 +333,19 @@ routerAccounts.get("/admin", isAutenticatedMiddleware, async (ctx) => {
     externalDoorUnlocked &&
     Date.now() - ctx.session!.externalDoorUnlockedSince! >
       TIMEOUT_EXTERNAL_DOOR_MILLISECONDS
-  )
+  ){
     ctx.session!.externalDoorUnlocked = false;
+    ctx.session!.externalDoorUnlockedSince = undefined;
+  }
   const logs = await prismaConnection.logs.findMany({
     take: 10,
     orderBy: {
       createdAt: "desc",
+    },
+    where:{
+      type: {
+        in: [LogType.UNLOCK_EXTERNAL_DOOR, LogType.UNLOCK_INTERNAL_DOOR],
+      },
     },
     include: {
       user: true,

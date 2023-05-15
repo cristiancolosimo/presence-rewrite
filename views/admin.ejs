@@ -10,12 +10,13 @@
     <div class="container">
         <flex-wrap>
             <card style="flex:2">
-                <card-title>Utenti</card-title>
+                <card-title style="display:flex; justify-content: space-between;">Utenti <a  class="control-btn" href="/accounts/administration/user/new" style="padding:5px;font-size:14px">Aggiungi</a></card-title>
                 <card-content style="flex-direction: column;
                 width: 100%;align-items: normal;">
                     <flex-wrap style="justify-content: space-between;"><p>Utenti totali: <strong><%= platformUsers.totalUsers.length %></strong></p>
                     <p>Utenti attivi: <strong><%= platformUsers.activeUsers.length %></strong></p>
                     <p>Utenti inattivi: <strong><%= platformUsers.inactiveUsers.length %></strong></p>
+
                 </flex-wrap>
                     <table>
                         <thead>
