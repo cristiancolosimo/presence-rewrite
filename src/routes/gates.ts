@@ -6,6 +6,7 @@ import {
 import { prismaConnection } from "../db";
 import { LogType } from "../models/Logs";
 import Router from "@koa/router";
+import { hpccInternal } from "../services/hpccInternal";
 
 export const routerGates = new Router({
   prefix: "/gates",
@@ -19,6 +20,7 @@ routerGates.get(
   isAutenticatedMiddleware,
   isAllowedToUnlockInternalDoor,
   async (ctx) => {
+    await hpccInternal.send_unlock_pulse();
     await prismaConnection.logs.create({
       data: {
         type: LogType.UNLOCK_INTERNAL_DOOR,

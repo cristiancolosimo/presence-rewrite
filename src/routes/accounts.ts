@@ -332,3 +332,19 @@ routerAccounts.get("/admin", isAutenticatedMiddleware, async (ctx) => {
     }),
   });
 });
+
+
+routerAccounts.post("/administration/user/delete/:id", isAutenticatedMiddleware,isSuperAdminMiddleware, async (ctx) => {
+  await prismaConnection.user.delete({
+    where: {
+      id: parseInt(ctx.params.id),
+    },
+  });
+  await prismaConnection.logs.create({
+    data: {
+      type: LogType.DELETE_USER,
+      userId: ctx.session!.user!.id,
+    },
+  });
+  ctx.redirect("/accounts/administration");
+});

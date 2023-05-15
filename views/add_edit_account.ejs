@@ -9,7 +9,6 @@
     <%- include('components/header'); %>
 
     <div class="container">
-        <form action="" method="post">
             <flex-column style="gap: 10px;">
                 <card>
                     <% if(user) {%>
@@ -18,7 +17,10 @@
                     <card-title>Aggiungi utente</card-title>
                     <% } %>
                     <card-content>
+
                         <flex-column style="gap: 10px;">
+                            <form action="" method="post">
+
                             <div>Username: <input minlength="5" maxlength="20" type="text" name="username" placeholder="Username" value="<%= user?.username || '' %>" <%= user !== undefined ? 'disabled' : ''%> <%= user == undefined ? 'required':'' %> ></div>
                             <div>Email:<input type="email" name="email" placeholder="Email" value="<%= user?.email || '' %>" <%= user == undefined ? 'required':'' %>></div>
                             <div>Password:<input minlength="10" maxlength="100" type="password" name="password" placeholder="Password" <%= user == undefined ? 'required':'' %>></div>
@@ -41,6 +43,8 @@
                             <% } else { %>
                             <button type="submit">Aggiungi</button>
                             <% } %>
+                        </form>
+
                         </flex-column>
                     </card-content>
                 </card>
@@ -49,14 +53,18 @@
                     <card-title>Elimina utente</card-title>
                     <card-content>
                         <flex-wrap style="gap: 10px;">
+                            <form action="/accounts/administration/user/delete/<%= user.id %>" method="post">
+                                <flex-column>
                             <p>Sei sicuro di voler eliminare l'utente <strong><%= user.username %></strong>?</p>
-                            <button type="submit" name="delete" value="true">Elimina</button>
+                            <div><input type="checkbox" name="confirm" value="true" required></checkbox> Confermi</div>
+                            <button type="submit"value="true">Elimina</button>
+                        </flex-column>
+                        </form>
                         </flex-wrap>
                     </card-content>
                 </card>
                 <% } %>
             </flex-column>
-        </form>
     </div>
 </body>
 </html>

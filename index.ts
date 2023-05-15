@@ -37,7 +37,7 @@ app.use(session(app));
 app.use(bodyParser());
 
 baseRouter.get("/", async (ctx) => {
-  await ctx.render("./home", {internalDoorUnLocked: await hpccInternal.is_magnet_on(),});
+  await ctx.render("./home", {internalDoorUnLocked: await hpccInternal.is_magnet_on()});
 });
 baseRouter.get("/admin", (ctx) => {
   ctx.redirect("/accounts/admin");
