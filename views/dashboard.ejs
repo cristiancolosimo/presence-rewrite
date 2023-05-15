@@ -52,6 +52,31 @@
           content: "BLOCCATO"
         }
       }
+      .external_door_unlocked.control-btn:not(.disabled) {
+        background-color: blue;
+        cursor: pointer;
+        pointer-events: all;
+        animation: control-btn-external-door-unlocked 60s linear;
+        animation-delay: -<%= externalDoorUnlockedSince %>ms;
+      }
+      @keyframes control-btn-external-door-unlocked {
+        0% {
+          background-color: rgb(186, 195, 198);
+          cursor: not-allowed;
+          pointer-events: none;
+        }
+        99.9% {
+          background-color: rgb(186, 195, 198);
+          cursor: not-allowed;
+          pointer-events: none;
+
+        }
+        100% {
+          background-color: blue;
+        }
+        
+      }
+
       .external_door_unlocked.contatore::after {
         content: "";
         display: block;
@@ -64,7 +89,9 @@
           content: "<%= 60-i %> Secondi";
         }
          <% } %>
-
+        99.9% {
+          content: "0 Secondi";
+        }
          100% {
           content: "";
          }
@@ -90,7 +117,7 @@
           <card-title> Porta esterna </card-title>
           <card-content>
             <div class="<%= externalDoorUnlocked?'external_door_unlocked':'external_door_locked' %> status_label"></div>
-            <a class="control-btn <%= permission.includes('unlock-external-door')?'':'disabled' %>" href="/gates/external/unlock">Apri</a>
+            <a class="control-btn <%= permission.includes('unlock-external-door')?(externalDoorUnlocked?'external_door_unlocked':'') :'disabled' %>" href="/gates/external/unlock">Apri</a>
             <div class="<%= externalDoorUnlocked?'external_door_unlocked':'' %> contatore"></div>
           </card-content>
         </card>
