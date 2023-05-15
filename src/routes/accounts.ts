@@ -13,7 +13,7 @@ import {
 import { LogType, LogTypeString } from "../models/Logs";
 import { PermissionTypeString } from "../models/Permission";
 import Router from "@koa/router";
-import {hpccInternal} from  "../services/hpccInternal";
+import { hpccInternal } from "../services/hpccInternal";
 const TIMEOUT_EXTERNAL_DOOR_SECONDS = 60;
 const TIMEOUT_EXTERNAL_DOOR_MILLISECONDS = TIMEOUT_EXTERNAL_DOOR_SECONDS * 1000;
 
@@ -34,7 +34,10 @@ routerAccounts.post("/login", async (ctx) => {
     ctx.body = "Errore nei dati inseriti";
     return;
   }
-  const user = await prismaConnection.user.findUnique({ where: { username } , include: {permission:true}});
+  const user = await prismaConnection.user.findUnique({
+    where: { username },
+    include: { permission: true },
+  });
   if (!user) {
     ctx.body = "Utente o password errati";
     return;
@@ -49,7 +52,9 @@ routerAccounts.post("/login", async (ctx) => {
     return;
   }
   ctx.session!.user = user;
-  ctx.session!.permission = user.permission.map((permission) => permission.permissionId);
+  ctx.session!.permission = user.permission.map(
+    (permission) => permission.permissionId
+  );
   /*ctx.session!.permission = [
     "super-admin",
     "unlock-internal-door",
@@ -98,8 +103,7 @@ routerAccounts.get(
   isAutenticatedMiddleware,
   isSuperAdminMiddleware,
   async (ctx) => {
-
-    const last30LogsPromise =  prismaConnection.logs.findMany({
+    const last30LogsPromise = prismaConnection.logs.findMany({
       take: 30,
       orderBy: {
         createdAt: "desc",
@@ -108,7 +112,7 @@ routerAccounts.get(
         user: true,
       },
     });
-    const usersPromise =  prismaConnection.user.findMany({
+    const usersPromise = prismaConnection.user.findMany({
       orderBy: {
         enabled: "desc",
       },
@@ -116,7 +120,10 @@ routerAccounts.get(
         permission: true,
       },
     });
-    const [last30Logs, users] =  await Promise.all([last30LogsPromise,usersPromise]);
+    const [last30Logs, users] = await Promise.all([
+      last30LogsPromise,
+      usersPromise,
+    ]);
     await ctx.render("./admin", {
       logTypeString: LogTypeString,
       permissionTypeString: PermissionTypeString,
@@ -143,43 +150,52 @@ routerAccounts.get(
   isSuperAdminMiddleware,
   async (ctx) => {
     await ctx.render("./add_edit_account", {
-      user: undefined,
-      permission: undefined,
+      userForm: undefined,
+      permissionForm: undefined,
+      permissionSession: ctx.session!.permission,
     });
   }
 );
 
 interface PermissionForm {
-  permission_admin:"on"| undefined
-permission_internal_door:"on"| undefined
-permission_external_door:"on"| undefined
+  permission_admin: "on" | undefined;
+  permission_internal_door: "on" | undefined;
+  permission_external_door: "on" | undefined;
 }
 
-interface AdminAccountRegistration extends PermissionForm{
+interface AdminAccountRegistration extends PermissionForm {
   username: string;
   password: string | undefined;
-  email:string;
-  enabled:"true"|"false"
-};
+  email: string;
+  enabled: "true" | "false";
+}
 
 routerAccounts.post(
   "/administration/user/new",
   isAutenticatedMiddleware,
   isSuperAdminMiddleware,
   async (ctx) => {
-    const { username, password, email, enabled , permission_admin, permission_external_door,permission_internal_door} = ctx.request.body as AdminAccountRegistration;
+    const {
+      username,
+      password,
+      email,
+      enabled,
+      permission_admin,
+      permission_external_door,
+      permission_internal_door,
+    } = ctx.request.body as AdminAccountRegistration;
     if (!username || !password || !email || !enabled) {
       ctx.body = "Errore nei dati inseriti";
       return;
     }
     const salt = generate_salt();
     const hashed_password = hash_password(password, salt);
-    const permission : string[]= [];
-    if(permission_admin == "on") permission.push("super-admin");
-    if(permission_external_door == "on") permission.push("unlock-external-door");
-    if(permission_internal_door == "on") permission.push("unlock-internal-door");
-
-    
+    const permission: string[] = [];
+    if (permission_admin == "on") permission.push("super-admin");
+    if (permission_external_door == "on")
+      permission.push("unlock-external-door");
+    if (permission_internal_door == "on")
+      permission.push("unlock-internal-door");
 
     try {
       await prismaConnection.user.create({
@@ -190,11 +206,10 @@ routerAccounts.post(
           email: email,
           enabled: enabled == "true",
           permission: {
-          
-            create: permission.map(el => {
+            create: permission.map((el) => {
               return {
-                permissionId: el
-              }
+                permissionId: el,
+              };
             }),
           },
         },
@@ -231,8 +246,11 @@ routerAccounts.get(
       return;
     }
     await ctx.render("./add_edit_account", {
-      user: user,
-      permission: user.permission.map((permission) => permission.permissionId),
+      userForm: user,
+      permissionForm: user.permission.map(
+        (permission) => permission.permissionId
+      ),
+      permissionSession: ctx.session!.permission,
       currentUser: ctx.session!.user!.id == user.id,
     });
   }
@@ -243,7 +261,15 @@ routerAccounts.post(
   isAutenticatedMiddleware,
   isSuperAdminMiddleware,
   async (ctx) => {
-    const { username, password, email, enabled,permission_admin,permission_external_door,permission_internal_door } = ctx.request.body as any;
+    const {
+      username,
+      password,
+      email,
+      enabled,
+      permission_admin,
+      permission_external_door,
+      permission_internal_door,
+    } = ctx.request.body as any;
     if (!email) {
       ctx.body = "Errore nei dati inseriti";
       return;
@@ -260,11 +286,13 @@ routerAccounts.post(
       ctx.body = "Utente non trovato";
       return;
     }
-    const permission : string[]= [];
-    if(permission_admin == "on") permission.push("super-admin");
-    if(permission_external_door == "on") permission.push("unlock-external-door");
-    if(permission_internal_door == "on") permission.push("unlock-internal-door");
-    
+    const permission: string[] = [];
+    if (permission_admin == "on") permission.push("super-admin");
+    if (permission_external_door == "on")
+      permission.push("unlock-external-door");
+    if (permission_internal_door == "on")
+      permission.push("unlock-internal-door");
+
     let temp_password = user.password;
     if (password && password.length > 5) {
       const salt = user.salt;
@@ -281,22 +309,23 @@ routerAccounts.post(
         enabled: enabled == "true",
         permission: {
           deleteMany: {},
-          create: permission.map(el => {
+          create: permission.map((el) => {
             return {
-              permissionId: el
-            }
+              permissionId: el,
+            };
           }),
         },
-      }});
+      },
+    });
     await prismaConnection.logs.create({
       data: {
         type: LogType.EDIT_USER,
         userId: ctx.session!.user!.id,
-      },});
+      },
+    });
     ctx.redirect("/accounts/administration");
-    
-});
-
+  }
+);
 
 routerAccounts.get("/admin", isAutenticatedMiddleware, async (ctx) => {
   const externalDoorUnlocked = ctx.session!.externalDoorUnlocked == true;
@@ -333,18 +362,22 @@ routerAccounts.get("/admin", isAutenticatedMiddleware, async (ctx) => {
   });
 });
 
-
-routerAccounts.post("/administration/user/delete/:id", isAutenticatedMiddleware,isSuperAdminMiddleware, async (ctx) => {
-  await prismaConnection.user.delete({
-    where: {
-      id: parseInt(ctx.params.id),
-    },
-  });
-  await prismaConnection.logs.create({
-    data: {
-      type: LogType.DELETE_USER,
-      userId: ctx.session!.user!.id,
-    },
-  });
-  ctx.redirect("/accounts/administration");
-});
+routerAccounts.post(
+  "/administration/user/delete/:id",
+  isAutenticatedMiddleware,
+  isSuperAdminMiddleware,
+  async (ctx) => {
+    await prismaConnection.user.delete({
+      where: {
+        id: parseInt(ctx.params.id),
+      },
+    });
+    await prismaConnection.logs.create({
+      data: {
+        type: LogType.DELETE_USER,
+        userId: ctx.session!.user!.id,
+      },
+    });
+    ctx.redirect("/accounts/administration");
+  }
+);
