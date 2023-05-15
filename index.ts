@@ -3,9 +3,10 @@ import { routerAccounts } from "./src/routes/accounts";
 import Koa from "koa";
 import Router from "@koa/router";
 import session from "koa-session";
-import bodyParser from 'koa-bodyparser';
+import bodyParser from "koa-bodyparser";
 import render from "koa-ejs";
 import path from "path";
+import { hpccInternal } from "./src/services/hpccInternal";
 const app = new Koa();
 
 const secret = (Math.random() * 10000000).toString(); //TODO, if you want to scale orizzontaly the server, you need to use a shared secret and migrate the database from sqlite to shared istance as mysql or postgresql
@@ -25,13 +26,12 @@ if (!process.env.ROUNDS) {
   process.exit(1);
 }
 render(app, {
-    root: path.join(__dirname, "views"),
-    layout: false,
-    viewExt: "ejs",
-    cache: false,
-    debug: false,
+  root: path.join(__dirname, "views"),
+  layout: false,
+  viewExt: "ejs",
+  cache: false,
+  debug: false,
 });
-  
 
 app.use(session(app));
 app.use(bodyParser());
@@ -50,5 +50,10 @@ app
   .use(routerAccounts.allowedMethods())
   .use(routerGates.routes())
   .use(routerGates.allowedMethods());
-app.listen(port);
-console.log(`The server is listening on port: ${port}`);
+
+const start = async () => {
+  await hpccInternal.setup();
+  app.listen(port);
+  console.log(`The server is listening on port: ${port}`);
+};
+start();
