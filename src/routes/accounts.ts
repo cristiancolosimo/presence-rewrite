@@ -13,7 +13,7 @@ import {
 import { LogType, LogTypeString } from "../models/Logs";
 import { PermissionTypeString } from "../models/Permission";
 import Router from "@koa/router";
-
+import {hpccInternal} from  "../services/hpccInternal";
 const TIMEOUT_EXTERNAL_DOOR_SECONDS = 60;
 const TIMEOUT_EXTERNAL_DOOR_MILLISECONDS = TIMEOUT_EXTERNAL_DOOR_SECONDS * 1000;
 
@@ -319,6 +319,7 @@ routerAccounts.get("/admin", isAutenticatedMiddleware, async (ctx) => {
     logTypeString: LogTypeString,
     username: ctx.session!.user!.username,
     permission: ctx.session!.permission,
+    internalDoorUnLocked: await hpccInternal.is_magnet_on(),
     externalDoorUnlocked: externalDoorUnlocked,
     externalDoorUnlockedSince:
       Date.now() - (ctx.session!.externalDoorUnlockedSince || Date.now()),

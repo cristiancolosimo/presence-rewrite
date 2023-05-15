@@ -82,8 +82,8 @@
         <card>
           <card-title> Porta interna </card-title>
           <card-content>
-            <div class="stato aperto">Aperto</div>
-            <a class="control-btn <%= permission.includes('unlock-internal-door')?'':'disabled' %>" href="/gates/internal/unlock">Apri</a>
+            <div class="stato <%= internalDoorUnLocked?'aperto':'chiuso' %>"><%= internalDoorUnLocked?'Aperto':'Chiuso' %></div>
+            <a class="control-btn <%= permission.includes('unlock-internal-door') && !internalDoorUnLocked?'':'disabled' %>" href="/gates/internal/unlock">Apri</a>
           </card-content>
         </card>
         <card>
