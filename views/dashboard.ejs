@@ -110,7 +110,7 @@
           <card-title> Porta interna </card-title>
           <card-content>
             <div class="stato <%= internalDoorUnLocked?'aperto':'chiuso' %>"><%= internalDoorUnLocked?'Aperto':'Chiuso' %></div>
-            <a class="control-btn <%= permission.includes('unlock-internal-door') && !internalDoorUnLocked?'':'disabled' %>" href="/gates/internal/unlock">Apri</a>
+            <a class="control-btn <%= permission.includes('unlock-internal-door') && !internalDoorUnLocked && isSafeNetwork?'':'disabled' %>" href="/gates/internal/unlock">Apri</a>
           </card-content>
         </card>
         <card>

@@ -34,6 +34,10 @@ if (!process.env.HOMEPAGE_RELOAD_TIME) {
   console.error("Homepage reload time not defined");
   process.exit(1);
 }
+if(!process.env.ALLOWED_NETWORK_FOR_INTERNAL_DOOR){
+  console.error("Allowed network for internal door not defined");
+  process.exit(1);
+}
 render(app, {
   root: path.join(__dirname, "views"),
   layout: false,

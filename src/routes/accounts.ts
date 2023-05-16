@@ -23,6 +23,7 @@ import {
   permission_parsers,
 } from "../controllers/accounts";
 import { get } from "http";
+import { isIpAllowed } from "../utils/isIpAllowed";
 export const TIMEOUT_EXTERNAL_DOOR_SECONDS =
   +process.env.EXTERNAL_DOOR_TIMEOUT!;
 export const TIMEOUT_EXTERNAL_DOOR_MILLISECONDS =
@@ -188,6 +189,7 @@ routerAccounts.get("/admin", isAutenticatedMiddleware, async (ctx) => {
     permission: ctx.session!.permission,
     internalDoorUnLocked: await hpccInternal.is_magnet_on(),
     externalDoorUnlocked: externalDoorUnlocked,
+    isSafeNetwork: isIpAllowed(ctx.socket.remoteAddress!),
     externalDoorUnlockedSince:
       Date.now() - (ctx.session!.externalDoorUnlockedSince || Date.now()),
     externalDoorTimeout: process.env.EXTERNAL_DOOR_TIMEOUT!,

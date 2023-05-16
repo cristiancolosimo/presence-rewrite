@@ -1,5 +1,6 @@
 import { Context, Next } from 'koa';
 import { PAGE_LOGIN } from '../utils/abolute_url_redirect';
+import { isIpAllowed } from '../utils/isIpAllowed';
 
 export async function userLangMiddleware(ctx: Context, next: Next) {
   // get lang from accept-language header
@@ -36,9 +37,12 @@ export async function isAllowedToUnlockInternalDoor(ctx: Context, next: Next) {
     ctx.body = "Non autorizzato";
     return;
   }
-  if (ctx.socket.remoteAddress && false) {
+  console.log("log ip",ctx.socket.remoteAddress);
+  
+  if (ctx.socket.remoteAddress === undefined || !isIpAllowed(ctx.socket.remoteAddress)) {
+    ctx.body = "Non autorizzato";
+    return;
     // Add your logic here
   }
-  console.log(ctx.socket.remoteAddress);
   await next();
 }
