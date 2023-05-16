@@ -1,5 +1,5 @@
 import { prismaConnection } from "../db";
-import { generate_salt, hash_password } from "../utils/password";
+import { hash_password } from "../utils/password";
 import { timeSince } from "../utils/timeago";
 import {
   isAutenticatedMiddleware,
@@ -11,18 +11,13 @@ import Router from "@koa/router";
 import { hpccInternal } from "../services/hpccInternal";
 import { get_logs, save_logs } from "../utils/logs";
 import { Logs, User } from "@prisma/client";
-import {
-  PAGE_DASHBOARD,
-  PAGE_LOGIN,
-  PAGE_ADMINISTRATION,
-} from "../utils/abolute_url_redirect";
+import { PAGE_LOGIN, PAGE_ADMINISTRATION } from "../utils/abolute_url_redirect";
 import {
   get_administration_page_controller,
   get_login_page_controller,
   new_user_post_controller,
   permission_parsers,
 } from "../controllers/accounts";
-import { get } from "http";
 import { isIpAllowed } from "../utils/isIpAllowed";
 export const TIMEOUT_EXTERNAL_DOOR_SECONDS =
   +process.env.EXTERNAL_DOOR_TIMEOUT!;

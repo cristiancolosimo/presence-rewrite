@@ -7,3 +7,5 @@ LICENSE.md
 .git
 .gitignore
 .github
+Dockerfile
+docker-compose.template.yml

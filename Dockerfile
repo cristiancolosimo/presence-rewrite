@@ -1,20 +1,18 @@
-FROM node:slim
+FROM node
 # Set working directory
-WORKDIR /app
 
 #for inalidating cache
 ARG CACHEBUST=1 
 
 # Copy files
-COPY package.json .
-COPY package-lock.json .
-COPY index.ts .
-COPY views .
-COPY prisma .
-COPY src .
+COPY . /app
+WORKDIR /app
 
+ENV NODE_ENV=development 
+ENV DATABASE_URL="file:./database.db"
 # Install dependencies
-RUN apt-get update && apt-get install -y python3 python3-pip
 RUN npm install
 
-CMD ["npm", "start"]
+LABEL org.opencontainers.image.description "HLCS Presence rewrited in Typescript"
+
+CMD ["npm", "run","startprod"]

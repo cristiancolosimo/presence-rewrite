@@ -4,8 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node index.ts",
     "prisma_gen": "prisma generate",
+    "prisma_push": "prisma db push",
+    "start": "ts-node index.ts",
+    "startprod": "npm run prisma_push && npm run prisma_gen && npm run start ",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

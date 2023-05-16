@@ -11,3 +11,11 @@ services:
     command: sleep infinity
     env_file:
       - .env
+  #deploy_node:
+  #  image: ghcr.io/cristiancolosimo/presence-rewrite:main@sha256:9326ce2bfa3afb102773cdebff731b48f582c4ede077207f2ab82a9403c41618
+  #  env_file:
+  #    - .env
+  #  volumes:
+  #    - /sys:/sys #for rpi-gpio
+  #  ports:
+  #    - 3200:3000

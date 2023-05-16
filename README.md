@@ -1,3 +1,7 @@
+[![Docker Image CI](https://github.com/cristiancolosimo/presence-rewrite/actions/workflows/docker-image-arm.yml/badge.svg)](https://github.com/cristiancolosimo/presence-rewrite/actions/workflows/docker-image-arm.yml)
+======
+
+
 HLCS Presence, rewrited in TS
 ===============
 The presence is a Home automation system for controlling doors electronically and logging accesses.
@@ -16,3 +20,19 @@ The stack if formed by:
 - [Sqlite](https://www.sqlite.org/) (Database)
 - [EJS](http://ejs.co/) (Templating Engine)
 - [Docker](https://www.docker.com/) (Containerization)
+
+
+How to use
+==========
+You can compile it with docker or use the precompiled image on github registry.
+The envrioment variables to set are:
+- PEPPER="ultra random thing"
+- PORT=3000
+- ROUNDS=10000
+- EXTERNAL_DOOR_TIMEOUT=60 #seconds
+- HOMEPAGE_RELOAD_TIME=10 #seconds
+- ALLOWED_NETWORK_FOR_INTERNAL_DOOR="192.168.1.0/24" #% is wildcard
+
+It's important to set volumes /sys:/sys for the gpio to work.
+The database is located in /app/prisma/database.db , don't bind the entire folder becouse will break the app.
+You can see the template of docker-compose.template.yml in the root of the project for a example.
