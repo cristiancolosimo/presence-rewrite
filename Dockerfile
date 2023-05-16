@@ -11,7 +11,6 @@ COPY package-lock.json .
 COPY index.ts .
 COPY views .
 COPY prisma .
-COPY static .
 COPY src .
 
 # Install dependencies
