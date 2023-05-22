@@ -1,5 +1,4 @@
-import exp from "constants";
-import { promise as GPIO } from "rpi-gpio";
+import rpio from 'rpio';
 /**
 LOCK_PIN = getattr(settings, 'LOCK_PIN', 4)
 MAGNET_PIN = getattr(settings, 'MAGNET_PIN', 17)
@@ -12,28 +11,29 @@ const LOCK_PIN = 4;
 const MAGNET_PIN = 17;
 
 const PULSE_SLEEP = 1000; //1s 1000ms
-const PULSE_ON = false;
-const PULSE_OFF = true;
+const PULSE_ON = rpio.HIGH;
+const PULSE_OFF = rpio.LOW;
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 class HpccInternal {
   constructor() {}
   async setup() {
     try {
-      await GPIO.setup(LOCK_PIN, GPIO.DIR_OUT);
-      await GPIO.setup(MAGNET_PIN, GPIO.DIR_IN);
+      rpio.open(LOCK_PIN, rpio.OUTPUT);
+      rpio.open(MAGNET_PIN, rpio.INPUT);
+      
       return true;
     } catch (e) {
-      //console.log(e);
+      console.log(e);
       return false;
     }
   }
 
   async send_unlock_pulse() {
     try {
-      await GPIO.write(LOCK_PIN, PULSE_ON);
+      rpio.write(LOCK_PIN, PULSE_ON);
       await sleep(PULSE_SLEEP);
-      await GPIO.write(LOCK_PIN, PULSE_OFF);
+      rpio.write(LOCK_PIN, PULSE_OFF);
       return true;
     } catch (e) {
       console.error(e);
@@ -42,7 +42,7 @@ class HpccInternal {
   }
   async is_magnet_on() {
     try {
-      const value = await GPIO.read(MAGNET_PIN);
+      const value = rpio.read(MAGNET_PIN);
       return value;
     } catch (e) {
       console.error(e);
