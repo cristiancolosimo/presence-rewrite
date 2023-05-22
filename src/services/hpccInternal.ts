@@ -36,7 +36,7 @@ class HpccInternal {
       await GPIO.write(LOCK_PIN, PULSE_OFF);
       return true;
     } catch (e) {
-      //console.log(e);
+      console.error(e);
       return false;
     }
   }
@@ -45,7 +45,7 @@ class HpccInternal {
       const value = await GPIO.read(MAGNET_PIN);
       return value;
     } catch (e) {
-      //console.log(e);
+      console.error(e);
       return false;
     }
   }
