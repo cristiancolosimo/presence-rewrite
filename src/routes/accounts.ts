@@ -1,26 +1,27 @@
-import { prismaConnection } from "../db";
-import { hash_password } from "../utils/password";
-import { timeSince } from "../utils/timeago";
+import { prismaConnection } from "../db.ts";
+import { hash_password } from "../utils/password.ts";
+import { timeSince } from "../utils/timeago.ts";
 import {
   isAutenticatedMiddleware,
   isSuperAdminMiddleware,
   userLangMiddleware,
-} from "../middlewares/auth";
-import { LogType, LogTypeString } from "../models/Logs";
-import Router from "@koa/router";
-import { hpccInternal } from "../services/hpccInternal";
-import { get_logs, save_logs } from "../utils/logs";
+} from "../middlewares/auth.ts";
+import { LogType, LogTypeString } from "../models/Logs.ts";
+import { Application, Router, Context,Next } from "https://deno.land/x/oak/mod.ts";
+
+import { hpccInternal } from "../services/hpccInternal.ts";
+import { get_logs, save_logs } from "../utils/logs.ts";
 import { Logs, User } from "@prisma/client";
-import { PAGE_LOGIN, PAGE_ADMINISTRATION } from "../utils/abolute_url_redirect";
+import { PAGE_LOGIN, PAGE_ADMINISTRATION } from "../utils/abolute_url_redirect.ts";
 import {
   get_administration_page_controller,
   get_login_page_controller,
   new_user_post_controller,
   permission_parsers,
-} from "../controllers/accounts";
-import { isIpAllowed } from "../utils/isIpAllowed";
+} from "../controllers/accounts.ts";
+import { isIpAllowed } from "../utils/isIpAllowed.ts";
 export const TIMEOUT_EXTERNAL_DOOR_SECONDS =
-  +process.env.EXTERNAL_DOOR_TIMEOUT!;
+  +Deno.env.get("EXTERNAL_DOOR_TIMEOUT!")!;
 export const TIMEOUT_EXTERNAL_DOOR_MILLISECONDS =
   TIMEOUT_EXTERNAL_DOOR_SECONDS * 1000;
 

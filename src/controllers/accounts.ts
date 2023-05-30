@@ -1,17 +1,17 @@
-import { Context } from "koa";
-import { prismaConnection } from "../db";
-import { PAGE_ADMINISTRATION, PAGE_DASHBOARD } from "../utils/abolute_url_redirect";
-import { generate_salt, hash_password, verify_password } from "../utils/password";
-import { LogType, LogTypeString } from "../models/Logs";
-import { PermissionTypeString } from "../models/Permission";
-import { get_logs, save_logs } from "../utils/logs";
-import { timeSince } from "../utils/timeago";
-import {  LogMapEnter, permissionMapCreate } from "../routes/accounts";
+import { Application, Router, Context } from "https://deno.land/x/oak/mod.ts";
+import { prismaConnection } from "../db.ts";
+import { PAGE_ADMINISTRATION, PAGE_DASHBOARD } from "../utils/abolute_url_redirect.ts";
+import { generate_salt, hash_password, verify_password } from "../utils/password.ts";
+import { LogType, LogTypeString } from "../models/Logs.ts";
+import { PermissionTypeString } from "../models/Permission.ts";
+import { get_logs, save_logs } from "../utils/logs.ts";
+import { timeSince } from "../utils/timeago.ts";
+import {  LogMapEnter, permissionMapCreate } from "../routes/accounts.ts";
 
 export const get_login_page_controller = async (ctx: Context) => {
   const { username, password } = ctx.request.body as any;
   if (!username || !password) {
-    ctx.body = "Errore nei dati inseriti";
+    ctx.response.body = "Errore nei dati inseriti";
     return;
   }
   const user = await prismaConnection.user.findUnique({
@@ -19,16 +19,16 @@ export const get_login_page_controller = async (ctx: Context) => {
     include: { permission: true },
   });
   if (!user) {
-    ctx.body = "Utente o password errati";
+    ctx.response.body = "Utente o password errati";
     return;
   }
   const isPasswordCorrect = verify_password(password, user.salt, user.password);
   if (!isPasswordCorrect) {
-    ctx.body = "Utente o password errati"; // For privacy reasons, we don't want to tell if the username is registered or not
+    ctx.response.body = "Utente o password errati"; // For privacy reasons, we don't want to tell if the username is registered or not
     return;
   }
   if (!user.enabled) {
-    ctx.body = "Utente non attivo";
+    ctx.response.body = "Utente non attivo";
     return;
   }
   ctx.session!.user = user;
@@ -36,7 +36,7 @@ export const get_login_page_controller = async (ctx: Context) => {
     (permission) => permission.permissionId
   );
 
-  ctx.redirect(PAGE_DASHBOARD);
+  ctx.response.redirect(PAGE_DASHBOARD);
 };
 
 export const get_administration_page_controller = async (ctx: Context) => {
@@ -111,7 +111,7 @@ export const new_user_post_controller = async (ctx: Context) => {
     permission_internal_door,
   } = ctx.request.body as AdminAccountRegistration;
   if (!username || !password || !email || !enabled) {
-    ctx.body = "Errore nei dati inseriti";
+    ctx.response.body = "Errore nei dati inseriti";
     return;
   }
   const salt = generate_salt();
@@ -135,9 +135,9 @@ export const new_user_post_controller = async (ctx: Context) => {
       },
     });
   } catch (_) {
-    ctx.body = "Utente già registrato";
+    ctx.response.body = "Utente già registrato";
     return;
   }
   await save_logs(LogType.REGISTER, ctx.session!.user!.id);
-  ctx.redirect(PAGE_ADMINISTRATION);
+  ctx.response.redirect(PAGE_ADMINISTRATION);
 }

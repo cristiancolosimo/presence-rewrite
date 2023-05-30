@@ -2,18 +2,20 @@ import {
   isAllowedToUnlockExternalDoor,
   isAllowedToUnlockInternalDoor,
   isAutenticatedMiddleware,
-} from "../middlewares/auth";
-import { LogType } from "../models/Logs";
-import Router from "@koa/router";
-import { hpccInternal } from "../services/hpccInternal";
-import { save_logs } from "../utils/logs";
+} from "../middlewares/auth.ts";
+import { LogType } from "../models/Logs.ts";
+
+import { Application, Router, Context,Next } from "https://deno.land/x/oak/mod.ts";
+
+import { hpccInternal } from "../services/hpccInternal.ts";
+import { save_logs } from "../utils/logs.ts";
 
 export const routerGates = new Router({
   prefix: "/gates",
 });
 
-routerGates.get("/internal", async (ctx) => {});
-routerGates.get("/external", async (ctx) => {});
+routerGates.get("/internal", async (_) => {});
+routerGates.get("/external", async (_) => {});
 
 routerGates.get(
   "/internal/unlock",

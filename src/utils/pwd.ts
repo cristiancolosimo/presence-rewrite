@@ -1,3 +1,3 @@
 export function get_pwd(){
-    return process.cwd();
+    return Deno.execPath();
 }

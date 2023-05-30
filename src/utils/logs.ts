@@ -1,5 +1,5 @@
-import { prismaConnection } from "../db";
-import { LogType } from "../models/Logs";
+import { prismaConnection } from "../db.ts";
+import { LogType } from "../models/Logs.ts";
 
 export async function save_logs(type: number, userId: number) {
   await prismaConnection.logs.create({
