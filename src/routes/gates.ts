@@ -20,7 +20,11 @@ routerGates.get(
   isAutenticatedMiddleware,
   isAllowedToUnlockInternalDoor,
   async (ctx) => {
+    try{
     await hpccInternal.send_unlock_pulse();
+    }catch(e){
+      console.log("Send unlock pulse",e);
+    }
     await save_logs(LogType.UNLOCK_INTERNAL_DOOR, ctx.session!.user!.id);
     ctx.redirect("/accounts/admin");
   }

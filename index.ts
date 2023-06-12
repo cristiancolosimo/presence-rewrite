@@ -68,7 +68,11 @@ app
   .use(routerGates.allowedMethods());
 
 const start = async () => {
+  try {
   await hpccInternal.setup();
+  } catch (error) {
+    console.error("HPCC INTERNAL SETUP",error);
+  }
   app.listen(port);
   console.log(`The server is listening on port: ${port}`);
 };
