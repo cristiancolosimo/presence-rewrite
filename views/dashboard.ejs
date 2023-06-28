@@ -84,7 +84,7 @@
         animation-delay: -<%= externalDoorUnlockedSince %>ms;
       }
       @keyframes contatore {
-        <% for(let i = 0; i < externalDoorTimeout; i++){ %>
+        <% for(let i = parseInt(externalDoorUnlockedSince/1000); i < externalDoorTimeout; i++){ %>
         <%= (i*100/externalDoorTimeout) %>% {
           content: "<%= externalDoorTimeout-i %> Secondi";
         }

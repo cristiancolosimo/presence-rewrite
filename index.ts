@@ -7,6 +7,7 @@ import bodyParser from "koa-bodyparser";
 import render from "koa-ejs";
 import path from "path";
 import { hpccInternal } from "./src/services/hpccInternal";
+import { MemoryStore } from "./src/session";
 const app = new Koa();
 
 const secret = (Math.random() * 10000000).toString(); //TODO, if you want to scale orizzontaly the server, you need to use a shared secret and migrate the database from sqlite to shared istance as mysql or postgresql
@@ -46,7 +47,11 @@ render(app, {
   debug: false,
 });
 
-app.use(session(app));
+app.use(session({
+  store: new MemoryStore(),
+  key: 'koa.sess',
+  maxAge: "session",
+},app));
 app.use(bodyParser());
 
 baseRouter.get("/", async (ctx) => {
